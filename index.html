@@ -1,434 +1,241 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-    <meta charset="UTF-8">
-    <title>Piškvorky</title>
-    <style>
-        body {
-            background: #0f0f1a;
-            min-height: 100vh;
-            margin: 0;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-        }
-        h1 {
-            color: #0ff;
-            text-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
-            font-size: 3em;
-            margin-top: 30px;
-            animation: neon-glow 2s infinite alternate;
-        }
-        @keyframes neon-glow {
-            from { text-shadow: 0 0 10px #0ff, 0 0 20px #0ff; }
-            to { text-shadow: 0 0 30px #0ff, 0 0 60px #0ff; }
-        }
-        .menu {
-            margin: 30px 0 20px 0;
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .neon-btn {
-            background: #111;
-            color: #0ff;
-            border: 2px solid #0ff;
-            border-radius: 10px;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            cursor: pointer;
-            box-shadow: 0 0 10px #0ff, 0 0 20px #0ff inset;
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.1s;
-            outline: none;
-            position: relative;
-            overflow: hidden;
-        }
-        .neon-btn:hover {
-            background: #0ff;
-            color: #111;
-            box-shadow: 0 0 30px #0ff, 0 0 60px #0ff;
-            transform: scale(1.08) rotate(-2deg);
-        }
-        .level-select {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            justify-content: center;
-        }
-        .level-btn {
-            background: #111;
-            color: #f0f;
-            border: 2px solid #f0f;
-            border-radius: 8px;
-            padding: 8px 18px;
-            font-size: 1em;
-            cursor: pointer;
-            box-shadow: 0 0 8px #f0f, 0 0 16px #f0f inset;
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.1s;
-        }
-        .level-btn.selected, .level-btn:hover {
-            background: #f0f;
-            color: #111;
-            box-shadow: 0 0 20px #f0f, 0 0 40px #f0f;
-            transform: scale(1.1) rotate(2deg);
-        }
-        .board {
-            display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-template-rows: repeat(3, 100px);
-            gap: 18px;
-            margin: 40px 0 20px 0;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0,0,0,0.2);
-            border-radius: 20px;
-            box-shadow: 0 0 40px #0ff, 0 0 80px #f0f inset;
-            padding: 20px;
-            animation: board-fadein 1s;
-        }
-        @keyframes board-fadein {
-            from { opacity: 0; transform: scale(0.8);}
-            to { opacity: 1; transform: scale(1);}
-        }
-        .cell {
-            width: 100px;
-            height: 100px;
-            background: #181828;
-            border: 2px solid #0ff;
-            border-radius: 14px;
-            font-size: 3em;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 0 20px #0ff, 0 0 40px #0ff inset;
-            transition: background 0.2s, box-shadow 0.2s, color 0.2s, transform 0.1s;
-            user-select: none;
-            position: relative;
-        }
-        .cell.x {
-            color: #0ff;
-            text-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
-            animation: pop 0.3s;
-        }
-        .cell.o {
-            color: #f0f;
-            text-shadow: 0 0 20px #f0f, 0 0 40px #f0f;
-            animation: pop 0.3s;
-        }
-        @keyframes pop {
-            0% { transform: scale(0.5);}
-            80% { transform: scale(1.2);}
-            100% { transform: scale(1);}
-        }
-        .cell.win {
-            background: #222;
-            box-shadow: 0 0 40px #ff0, 0 0 80px #ff0 inset;
-            border-color: #ff0;
-            color: #ff0 !important;
-            animation: win-glow 1s infinite alternate;
-        }
-        @keyframes win-glow {
-            from { box-shadow: 0 0 40px #ff0, 0 0 80px #ff0 inset;}
-            to { box-shadow: 0 0 80px #ff0, 0 0 160px #ff0 inset;}
-        }
-        .status {
-            color: #fff;
-            font-size: 1.5em;
-            margin: 10px 0 20px 0;
-            text-align: center;
-            text-shadow: 0 0 10px #0ff, 0 0 20px #f0f;
-            min-height: 2em;
-        }
-        .restart-btn {
-            margin-top: 10px;
-            background: #111;
-            color: #ff0;
-            border: 2px solid #ff0;
-            border-radius: 10px;
-            padding: 10px 30px;
-            font-size: 1.1em;
-            cursor: pointer;
-            box-shadow: 0 0 10px #ff0, 0 0 20px #ff0 inset;
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.1s;
-        }
-        .restart-btn:hover {
-            background: #ff0;
-            color: #111;
-            box-shadow: 0 0 30px #ff0, 0 0 60px #ff0;
-            transform: scale(1.08) rotate(-2deg);
-        }
-        @media (max-width: 600px) {
-            .board {
-                grid-template-columns: repeat(3, 60px);
-                grid-template-rows: repeat(3, 60px);
-                padding: 10px;
-            }
-            .cell {
-                width: 60px;
-                height: 60px;
-                font-size: 2em;
-            }
-        }
-    </style>
+<meta charset="UTF-8" />
+<title>Dopis pro mami</title>
+<style>
+  body {
+    background: #fff8f0;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    flex-direction: column;
+  }
+  .envelope-closed, .envelope-open {
+    width: 400px;
+    height: 300px;
+    border-radius: 15px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    background: #f7e1d7;
+    border: 3px solid #ff99cc;
+    box-sizing: border-box;
+    padding: 20px;
+  }
+  .envelope-closed {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    color: #d94c7c;
+    font-weight: bold;
+    transition: transform 0.6s ease, opacity 0.5s ease;
+  }
+  .envelope-closed:hover {
+    transform: scale(1.05);
+  }
+  .envelope-open {
+    opacity: 0;
+    pointer-events: none;
+    flex-direction: column;
+  }
+  .letter {
+    font-size: 24px;
+    color: #d94c7c;
+    white-space: pre-wrap;
+    line-height: 1.4;
+    min-height: 150px;
+  }
+  .cake {
+    margin: 20px auto 0 auto;
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(to top, #ff6699 0%, #ff99cc 100%);
+    border-radius: 30px 30px 10px 10px;
+    position: relative;
+    box-shadow: 0 5px 10px #cc6699;
+  }
+  .candle {
+    width: 10px;
+    height: 40px;
+    background: yellow;
+    position: absolute;
+    top: -40px;
+    border-radius: 3px;
+    animation: flicker 0.3s infinite alternate;
+    left: 50%;
+    margin-left: -5px;
+  }
+  @keyframes flicker {
+    from {opacity: 1;}
+    to {opacity: 0.6;}
+  }
+  .flame {
+    width: 10px;
+    height: 15px;
+    background: orange;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    position: absolute;
+    top: -25px;
+    left: 0;
+    animation: flameMove 1s infinite alternate;
+    transition: opacity 0.5s ease;
+  }
+  @keyframes flameMove {
+    0% {transform: translateY(0);}
+    100% {transform: translateY(-5px);}
+  }
+  #wishContainer {
+    margin-top: 20px;
+    text-align: center;
+    display: none;
+  }
+  #wishInput {
+    font-size: 18px;
+    padding: 8px;
+    width: 80%;
+    border-radius: 8px;
+    border: 2px solid #ff99cc;
+    outline: none;
+  }
+  #blowButton {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: #ff6699;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  #blowButton:hover {
+    background: #ff3380;
+  }
+  .happy-birthday {
+    margin-top: 30px;
+    font-size: 48px;
+    font-weight: bold;
+    color: #ff3399;
+    animation: blink 1s infinite;
+    display: none;
+  }
+  @keyframes blink {
+    0%, 50%, 100% {opacity: 1;}
+    25%, 75% {opacity: 0.3;}
+  }
+  /* Animace zavření dopisu */
+  .close-envelope {
+    animation: closeEnvelopeAnim 1s forwards;
+  }
+  @keyframes closeEnvelopeAnim {
+    0% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(0.5) rotate(720deg);
+      opacity: 0;
+    }
+  }
+</style>
 </head>
 <body>
-    <h1>Piškvorky</h1>
-    <div class="menu">
-        <button class="neon-btn" id="vsFriend">Hrát s kamarádem</button>
-        <button class="neon-btn" id="vsBot">Hrát s botem</button>
+
+  <div class="envelope-closed" id="closed">
+    📩 Klikni na mě a otevři dopis!
+  </div>
+
+  <div class="envelope-open" id="open">
+    <div class="letter" id="letter"></div>
+    <div class="cake">
+      <div class="candle" id="candle">
+        <div class="flame" id="flame"></div>
+      </div>
     </div>
-    <div class="level-select" id="levelSelect" style="display:none;">
-        <button class="level-btn" data-level="easy">Easy</button>
-        <button class="level-btn" data-level="medium">Medium</button>
-        <button class="level-btn" data-level="hard">Hard</button>
+
+    <div id="wishContainer">
+      <input type="text" id="wishInput" placeholder="Napiš svoje přání tady..." maxlength="50" />
+      <br />
+      <button id="blowButton">Sfoukni svíčky!</button>
     </div>
-    <div class="status" id="status"></div>
-    <div class="board" id="board"></div>
-    <button class="restart-btn" id="restart" style="display:none;">Restart</button>
-    <!-- Přidané zvuky -->
-    <audio id="sound-player" src="https://audio-previews.elements.envatousercontent.com/files/105394911/preview.mp3"></audio>
-    <audio id="sound-bot" src="https://audio-previews.elements.envatousercontent.com/files/105394911/preview.mp3"></audio>
-    <audio id="sound-win" src="https://audio-previews.elements.envatousercontent.com/files/358514073/preview.mp3"></audio>
-    <audio id="sound-lose" src="https://gfxsounds.com/wp-content/uploads/2023/08/Game-over-you-lose-fantasy.mp3"></audio>
-    <script>
-        const boardElem = document.getElementById('board');
-        const statusElem = document.getElementById('status');
-        const restartBtn = document.getElementById('restart');
-        const vsFriendBtn = document.getElementById('vsFriend');
-        const vsBotBtn = document.getElementById('vsBot');
-        const levelSelect = document.getElementById('levelSelect');
-        const levelBtns = document.querySelectorAll('.level-btn');
-        const soundPlayer = document.getElementById('sound-player');
-        const soundBot = document.getElementById('sound-bot');
-        const soundWin = document.getElementById('sound-win');
-        const soundLose = document.getElementById('sound-lose');
+  </div>
 
-        let board, currentPlayer, gameOver, mode, botLevel;
+  <div class="happy-birthday" id="happyText">Happy Birthday!!! 🎉🎂🎈</div>
 
-        function initBoard() {
-            board = Array(9).fill('');
-            currentPlayer = 'X';
-            gameOver = false;
-            renderBoard();
-            updateStatus();
-        }
+<script>
+  const message = `Ahoj mami,\n
+Dnes máš narozeniny!\n
+Přeju ti hodně štěstí,\n
+zdraví a lásky.\n\n
+Happy Birthday! 🎂🎉`;
 
-        function renderBoard(winLine=[]) {
-            boardElem.innerHTML = '';
-            for (let i = 0; i < 9; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell' + (board[i] ? ' ' + board[i].toLowerCase() : '');
-                if (winLine.includes(i)) cell.classList.add('win');
-                cell.dataset.index = i;
-                cell.onclick = () => handleCellClick(i);
-                cell.textContent = board[i];
-                boardElem.appendChild(cell);
-            }
-        }
+  const closed = document.getElementById('closed');
+  const open = document.getElementById('open');
+  const letter = document.getElementById('letter');
+  const wishContainer = document.getElementById('wishContainer');
+  const wishInput = document.getElementById('wishInput');
+  const blowButton = document.getElementById('blowButton');
+  const flame = document.getElementById('flame');
+  const candle = document.getElementById('candle');
+  const happyText = document.getElementById('happyText');
 
-        function updateStatus(msg) {
-            if (msg) {
-                statusElem.textContent = msg;
-                return;
-            }
-            if (gameOver) return;
-            if (mode === 'bot' && currentPlayer === 'O') {
-                statusElem.textContent = 'Bot hraje...';
-            } else {
-                statusElem.textContent = `Na tahu: ${currentPlayer}`;
-            }
-        }
+  let i = 0;
 
-        function handleCellClick(i) {
-            if (gameOver || board[i]) return;
-            if (mode === 'bot' && currentPlayer === 'O') return;
-            board[i] = currentPlayer;
-            soundPlayer.currentTime = 0; soundPlayer.play();
-            const win = checkWin(board);
-            if (win) {
-                renderBoard(win.line);
-                statusElem.textContent = `Vyhrál hráč ${currentPlayer}!`;
-                gameOver = true;
-                restartBtn.style.display = 'inline-block';
-                // Výhra hráče proti botovi
-                if (mode === 'bot' && currentPlayer === 'X') {
-                    soundWin.currentTime = 0; soundWin.play();
-                }
-                return;
-            }
-            if (board.every(cell => cell)) {
-                renderBoard();
-                statusElem.textContent = 'Remíza!';
-                gameOver = true;
-                restartBtn.style.display = 'inline-block';
-                return;
-            }
-            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-            renderBoard();
-            updateStatus();
-            if (mode === 'bot' && currentPlayer === 'O' && !gameOver) {
-                setTimeout(botMove, 500);
-            }
-        }
+  function typeWriter() {
+    if (i < message.length) {
+      letter.textContent += message.charAt(i);
+      i++;
+      setTimeout(typeWriter, 100);
+    } else {
+      // Po dopsání textu zobrazíme přání
+      wishContainer.style.display = 'block';
+      wishInput.focus();
+    }
+  }
 
-        function checkWin(b) {
-            const lines = [
-                [0,1,2],[3,4,5],[6,7,8],
-                [0,3,6],[1,4,7],[2,5,8],
-                [0,4,8],[2,4,6]
-            ];
-            for (let line of lines) {
-                const [a,b1,c] = line;
-                if (b[a] && b[a] === b[b1] && b[a] === b[c]) {
-                    return {player: b[a], line};
-                }
-            }
-            return null;
-        }
+  closed.addEventListener('click', () => {
+    closed.style.transition = 'opacity 0.5s ease';
+    closed.style.opacity = '0';
+    setTimeout(() => {
+      closed.style.display = 'none';
+      open.style.opacity = '1';
+      open.style.pointerEvents = 'auto';
+      typeWriter();
+    }, 500);
+  });
 
-        function botMove() {
-            let move;
-            if (botLevel === 'easy') {
-                move = randomMove();
-            } else if (botLevel === 'medium') {
-                move = mediumMove();
-            } else {
-                move = minimaxMove();
-            }
-            if (move !== undefined) {
-                board[move] = 'O';
-                soundBot.currentTime = 0; soundBot.play();
-                const win = checkWin(board);
-                if (win) {
-                    renderBoard(win.line);
-                    statusElem.textContent = `Bot vyhrál!`;
-                    gameOver = true;
-                    restartBtn.style.display = 'inline-block';
-                    // Prohra hráče proti botovi
-                    soundLose.currentTime = 0; soundLose.play();
-                    return;
-                }
-                if (board.every(cell => cell)) {
-                    renderBoard();
-                    statusElem.textContent = 'Remíza!';
-                    gameOver = true;
-                    restartBtn.style.display = 'inline-block';
-                    return;
-                }
-                currentPlayer = 'X';
-                renderBoard();
-                updateStatus();
-            }
-        }
+  blowButton.addEventListener('click', () => {
+    const wish = wishInput.value.trim();
+    if (wish === '') {
+      alert('Napiš prosím svoje přání!');
+      wishInput.focus();
+      return;
+    }
+    // Přidáme přání do dopisu pod původní text
+    letter.textContent += `\n\nTvoje přání:\n${wish}`;
 
-        function randomMove() {
-            const empty = board.map((v,i) => v ? null : i).filter(v => v !== null);
-            return empty[Math.floor(Math.random()*empty.length)];
-        }
+    // Schováme přání a tlačítko
+    wishContainer.style.display = 'none';
 
-        function mediumMove() {
-            // 1. Pokud může vyhrát, tak vyhraje
-            for (let i=0;i<9;i++) {
-                if (!board[i]) {
-                    board[i] = 'O';
-                    if (checkWin(board)) { board[i]=''; return i; }
-                    board[i]='';
-                }
-            }
-            // 2. Pokud může soupeř vyhrát, zablokuje
-            for (let i=0;i<9;i++) {
-                if (!board[i]) {
-                    board[i] = 'X';
-                    if (checkWin(board)) { board[i]=''; return i; }
-                    board[i]='';
-                }
-            }
-            // 3. Jinak náhodně
-            return randomMove();
-        }
+    // Sfoukneme svíčky - zmizí plamínek
+    flame.style.opacity = '0';
 
-        function minimaxMove() {
-            let bestScore = -Infinity;
-            let move;
-            for (let i=0;i<9;i++) {
-                if (!board[i]) {
-                    board[i] = 'O';
-                    let score = minimax(board, 0, false);
-                    board[i] = '';
-                    if (score > bestScore) {
-                        bestScore = score;
-                        move = i;
-                    }
-                }
-            }
-            return move;
-        }
+    // Zavřeme dopis animací
+    open.classList.add('close-envelope');
 
-        function minimax(b, depth, isMax) {
-            const win = checkWin(b);
-            if (win) {
-                if (win.player === 'O') return 10 - depth;
-                if (win.player === 'X') return depth - 10;
-            }
-            if (b.every(cell => cell)) return 0;
-            if (isMax) {
-                let best = -Infinity;
-                for (let i=0;i<9;i++) {
-                    if (!b[i]) {
-                        b[i] = 'O';
-                        best = Math.max(best, minimax(b, depth+1, false));
-                        b[i] = '';
-                    }
-                }
-                return best;
-            } else {
-                let best = Infinity;
-                for (let i=0;i<9;i++) {
-                    if (!b[i]) {
-                        b[i] = 'X';
-                        best = Math.min(best, minimax(b, depth+1, true));
-                        b[i] = '';
-                    }
-                }
-                return best;
-            }
-        }
+    // Po animaci zavření ukážeme Happy Birthday text
+    setTimeout(() => {
+      open.style.display = 'none';
+      happyText.style.display = 'block';
+    }, 1000);
+  });
+</script>
 
-        // --- Ovládání menu ---
-        vsFriendBtn.onclick = () => {
-            mode = 'friend';
-            botLevel = null;
-            levelSelect.style.display = 'none';
-            restartBtn.style.display = 'none';
-            initBoard();
-        };
-        vsBotBtn.onclick = () => {
-            mode = 'bot';
-            levelSelect.style.display = 'flex';
-            restartBtn.style.display = 'none';
-            statusElem.textContent = 'Vyber úroveň bota:';
-            boardElem.innerHTML = '';
-        };
-        levelBtns.forEach(btn => {
-            btn.onclick = () => {
-                levelBtns.forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                botLevel = btn.dataset.level;
-                initBoard();
-            };
-        });
-        restartBtn.onclick = () => {
-            initBoard();
-            restartBtn.style.display = 'none';
-        };
-
-        // --- Start ---
-        statusElem.textContent = 'Vyber režim hry!';
-    </script>
 </body>
-</html># Tic-Tac
+</html>
